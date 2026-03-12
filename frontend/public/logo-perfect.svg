@@ -1,0 +1,51 @@
+<svg viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="mainGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#5A9CFF" />
+      <stop offset="100%" stop-color="#6DB0FF" />
+    </linearGradient>
+  </defs>
+
+  <!-- Floating Decorations -->
+  <!-- Pink Star -->
+  <polygon points="0,-20 5,-6 19,-6 9,3 12,16 0,8 -12,16 -9,3 -19,-6 -5,-6" 
+           fill="#F472B6" stroke="#F472B6" stroke-width="3" stroke-linejoin="round" 
+           transform="translate(200, 230) rotate(15)"/>
+           
+  <!-- Yellow Circle -->
+  <circle cx="250" cy="580" r="14" fill="#FBBF24" />
+  
+  <!-- Cyan Circle -->
+  <circle cx="300" cy="605" r="16" fill="#3B82F6" />
+
+  <!-- The Main Body: Stylized "3" -->
+  <path d="M 500 250 
+           L 790 250 A 40 40 0 0 1 830 290 
+           L 830 760 A 40 40 0 0 1 790 800 
+           L 320 800 A 70 70 0 0 1 320 660 
+           L 670 660 A 20 20 0 0 0 690 640 
+           L 690 580 A 20 20 0 0 0 670 560 
+           L 410 560 A 55 55 0 0 1 410 450 
+           L 670 450 A 20 20 0 0 0 690 430 
+           L 690 400 A 20 20 0 0 0 670 380 
+           L 500 380 A 65 65 0 0 1 500 250 Z" 
+        fill="url(#mainGrad)" />
+
+  <!-- Layer 2a: The Cap Base (Skullcap) -->
+  <path d="M 230 365 C 240 520, 440 500, 460 350 Z" fill="#1C3A9E" />
+
+  <!-- Layer 2b: The 3D Edge/Shadow of the Top Board -->
+  <polygon points="140,320 380,450 500,300 500,320 380,470 140,340" fill="#162B82" stroke-linejoin="round"/>
+
+  <!-- Layer 2c: The Top Board (Diamond) -->
+  <polygon points="300,180 500,300 380,450 140,320" fill="#2A4BC7" stroke="#2A4BC7" stroke-width="5" stroke-linejoin="round"/>
+
+  <!-- Tassel String -->
+  <path d="M 330 315 C 400 180, 550 140, 550 190" fill="none" stroke="#FCD34D" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- Tassel Fringe/Tuft -->
+  <path d="M 550 188 L 530 250 L 545 240 L 550 255 L 555 240 L 570 250 Z" fill="#FCD34D" stroke="#FDE68A" stroke-width="2" stroke-linejoin="round"/>
+
+  <!-- Button -->
+  <ellipse cx="330" cy="315" rx="15" ry="10" fill="#1C3A9E" transform="rotate(-35 330 315)"/>
+</svg>

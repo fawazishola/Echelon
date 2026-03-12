@@ -1,0 +1,29 @@
+/node_modules
+/.pnp
+.pnp.js
+.yarn
+.yarn/cache
+.yarn/build-state.json
+.yarn/install-state.gz
+.pnp.cjs
+
+.next
+/out
+/build
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env*.local
+.env
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
