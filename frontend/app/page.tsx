@@ -1,5 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import logoPerfect from "../public/logo-perfect.svg";
 
 export default function Splash() {
   return (
@@ -15,7 +17,7 @@ export default function Splash() {
         
         {/* Mascot / Logo */}
         <div className="mb-8 relative w-48 h-48 bg-white rounded-[40px] p-6 flex items-center justify-center shadow-2xl animate-bounce-slow shadow-indigo-500/30">
-             <img src="/logo-perfect.svg" alt="Echelon Logo" className="w-full h-full object-contain drop-shadow-sm" />
+             <Image src={logoPerfect} alt="Echelon Logo" className="w-full h-full object-contain drop-shadow-sm" priority />
         </div>
 
         <h1 className="text-4xl font-bold mb-2 tracking-tight">Echelon</h1>
