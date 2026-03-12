@@ -201,21 +201,7 @@ echelon/
 - [x] Application tracker (Kanban)
 - [x] Deadline notifications
 
-### v1.0
-- [ ] Institution verification → unlock university-specific scholarships
-- [ ] Real provider integrations (auto-submit applications)
-- [ ] Winner advice & community tips for recurring scholarships
-- [ ] Push notifications for deadlines & status updates
 
-### v1.5 — Matching Engine Evolution
-- [ ] Migrate game-theoretic routing from Python to [Tenet](https://fawazishola.ca/tenet/), a purpose-built DSL for game theory modeling created by one of our team members, enabling compile-time validation and native Nash equilibrium solving
-
-### v2.0 — Fintech & Expansion
-- [ ] Track and deploy awarded funds directly through the platform
-- [ ] Revenue-funded scholarship mandate (% of revenue → new scholarships)
-- [ ] Expand to fellowships, contests, exchanges, and raffles
-- [ ] Provider dashboard for charities & businesses to manage listings
-- [ ] Public/private sector donation portal to create new opportunities
 
 ---
 
