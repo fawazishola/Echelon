@@ -153,23 +153,17 @@ def reset():
         "Women Techmakers Scholarship": "Saved",
         "Generation Google Scholarship (North America)": "Saved",
         "Blacks at Microsoft (BAM) Scholarship": "Saved",
+        "Diversity Advancement Scholarship": "Saved",
 
         # Applied
         "Amazon Future Engineer Scholarship": "Applied",
         "Tuition Scholarship for STEM": "Applied",
+        "Thiel Fellowship": "Applied",
 
         # In Review
         "Live Más Scholarship": "In Review",
         "BBPA National Scholarship Program": "In Review",
-
-        # Round 1
-        "President's Entrance Scholarship for Black Students": "Round 1",
-
-        # Won
-        "Burger King Scholars": "Won",
-
-        # Lost
-        "Thiel Fellowship": "Lost",
+        "President's Entrance Scholarship for Black Students": "In Review",
     }
 
     applied_count = 0

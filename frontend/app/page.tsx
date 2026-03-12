@@ -16,8 +16,8 @@ export default function Splash() {
       <div className="z-10 flex flex-col items-center w-full max-w-md text-center">
         
         {/* Mascot / Logo */}
-        <div className="mb-8 relative w-48 h-48 bg-white rounded-[40px] p-6 flex items-center justify-center shadow-2xl animate-bounce-slow shadow-indigo-500/30">
-             <Image src={logoPerfect} alt="Echelon Logo" className="w-full h-full object-contain drop-shadow-sm" priority />
+        <div className="mb-8 relative w-44 h-44 bg-white rounded-3xl p-6 flex items-center justify-center shadow-xl">
+             <Image src={logoPerfect} alt="Echelon Logo" className="w-full h-full object-contain" priority />
         </div>
 
         <h1 className="text-4xl font-bold mb-2 tracking-tight">Echelon</h1>
@@ -28,7 +28,7 @@ export default function Splash() {
         <div className="w-full space-y-4">
           <Link
             href="/login" // In a real app navigate to login/onboarding
-            className="group w-full flex items-center justify-center gap-2 bg-white text-indigo-600 font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-200"
+            className="group w-full flex items-center justify-center gap-2 bg-white text-indigo-600 font-bold py-4 px-6 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.01] transition-all duration-200"
           >
             Get Started
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

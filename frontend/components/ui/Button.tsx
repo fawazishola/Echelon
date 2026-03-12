@@ -3,22 +3,22 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-bold ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.97]",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-semibold ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]",
   {
     variants: {
       variant: {
-        default: "bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200",
-        destructive: "bg-rose-500 text-white hover:bg-rose-600 shadow-lg shadow-rose-200",
-        outline: "border-2 border-slate-200 bg-white hover:bg-slate-50 text-slate-700",
+        default: "bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm",
+        destructive: "bg-rose-500 text-white hover:bg-rose-600 shadow-sm",
+        outline: "border border-slate-200 bg-white hover:bg-slate-50 text-slate-700",
         secondary: "bg-indigo-50 text-indigo-700 hover:bg-indigo-100",
         ghost: "hover:bg-slate-100 hover:text-slate-900",
         link: "text-indigo-600 underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-14 px-6 py-3", // 56px height per spec
-        sm: "h-10 rounded-lg px-4",
-        lg: "h-16 rounded-2xl px-10 text-lg",
-        icon: "h-14 w-14 rounded-full p-0 flex items-center justify-center", // For circular buttons
+        default: "h-12 px-5 py-2.5",
+        sm: "h-9 rounded-md px-3 text-xs",
+        lg: "h-14 rounded-xl px-8 text-base",
+        icon: "h-12 w-12 rounded-full p-0 flex items-center justify-center",
       },
     },
     defaultVariants: {

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Echelon – Export All Screenshots</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; padding: 40px; }
+    h1 { font-size: 28px; margin-bottom: 8px; }
+    p.sub { color: #94a3b8; margin-bottom: 32px; font-size: 14px; }
+    .controls { display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; }
+    button { padding: 12px 24px; border-radius: 12px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; transition: all .2s; }
+    button:hover { transform: scale(1.02); }
+    .btn-primary { background: linear-gradient(135deg, #6366f1, #7c3aed); color: white; }
+    .btn-secondary { background: #1e293b; color: #e2e8f0; border: 1px solid #334155; }
+    .btn-danger { background: #dc2626; color: white; }
+    .progress { background: #1e293b; border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; display: none; }
+    .progress.active { display: block; }
+    .progress-bar { height: 6px; background: #334155; border-radius: 3px; margin-top: 8px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #6366f1, #7c3aed); border-radius: 3px; transition: width .3s; width: 0%; }
+    .progress-text { font-size: 13px; color: #94a3b8; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+    .card { background: #1e293b; border-radius: 16px; overflow: hidden; border: 1px solid #334155; }
+    .card img { width: 100%; display: block; }
+    .card .info { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
+    .card .name { font-weight: 600; font-size: 13px; }
+    .card .status { font-size: 11px; padding: 4px 10px; border-radius: 8px; font-weight: 600; }
+    .status.done { background: #059669; color: white; }
+    .status.pending { background: #334155; color: #94a3b8; }
+    .status.loading { background: #d97706; color: white; }
+    .status.error { background: #dc2626; color: white; }
+    .card .dl-btn { padding: 6px 12px; border-radius: 8px; background: #6366f1; color: white; border: none; font-size: 11px; font-weight: 700; cursor: pointer; }
+    .hidden-frames { position: fixed; left: -9999px; top: 0; }
+    #log { margin-top: 24px; background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 16px; max-height: 200px; overflow-y: auto; font-family: monospace; font-size: 12px; color: #94a3b8; display: none; }
+    #log.active { display: block; }
+  </style>
+</head>
+<body>
+  <h1>📸 Echelon Screenshot Exporter</h1>
+  <p class="sub">Captures every screen in the app as 2x PNG files (iPhone-sized: 393×850)</p>
+
+  <div class="controls">
+    <button class="btn-primary" onclick="captureAll()">⬇ Capture & Download All</button>
+    <button class="btn-secondary" onclick="captureAll(false)">👁 Preview Only (no download)</button>
+    <button class="btn-secondary" onclick="document.getElementById('log').classList.toggle('active')">📋 Toggle Log</button>
+  </div>
+
+  <div class="progress" id="progress">
+    <div class="progress-text" id="progress-text">Preparing...</div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  </div>
+
+  <div id="log"></div>
+  <div class="grid" id="grid"></div>
+
+  <!-- Hidden iframes for capturing -->
+  <div class="hidden-frames" id="frames"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script>
+    const BASE = 'http://localhost:3000';
+    const W = 393;
+    const H = 850;
+    const SCALE = 2;
+
+    // All screens to capture
+    const SCREENS = [
+      { id: 'splash',          path: '/',                      name: '01 – Splash Screen',         needsAuth: false },
+      { id: 'login',           path: '/login',                 name: '02 – Login / Sign Up',       needsAuth: false },
+      { id: 'onboarding',      path: '/onboarding',            name: '03 – Onboarding',            needsAuth: true },
+      { id: 'discover',        path: '/dashboard/discover',    name: '04 – Discover (Swipe)',       needsAuth: true },
+      { id: 'tracker',         path: '/dashboard/tracker',     name: '05 – Tracker Pipeline',       needsAuth: true },
+      { id: 'alerts',          path: '/dashboard/alerts',      name: '06 – Alerts & Deadlines',     needsAuth: true },
+      { id: 'profile',         path: '/dashboard/profile',     name: '07 – Profile',                needsAuth: true },
+    ];
+
+    let token = null;
+
+    function log(msg) {
+      const el = document.getElementById('log');
+      el.innerHTML += `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>`;
+      el.scrollTop = el.scrollHeight;
+    }
+
+    function setProgress(current, total, text) {
+      const el = document.getElementById('progress');
+      el.classList.add('active');
+      document.getElementById('progress-text').textContent = text;
+      document.getElementById('progress-fill').style.width = `${(current / total) * 100}%`;
+    }
+
+    async function getToken() {
+      if (token) return token;
+      log('Logging in as demo@echelon.ai...');
+      const res = await fetch('http://localhost:8000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'username=demo@echelon.ai&password=demo123'
+      });
+      const data = await res.json();
+      token = data.access_token;
+      log('✓ Got auth token');
+      return token;
+    }
+
+    function createCard(screen) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.id = `card-${screen.id}`;
+      card.innerHTML = `
+        <div style="aspect-ratio:393/850;background:#1a1a2e;display:flex;align-items:center;justify-content:center;">
+          <span style="color:#475569;font-size:13px;">Waiting...</span>
+        </div>
+        <div class="info">
+          <span class="name">${screen.name}</span>
+          <span class="status pending" id="status-${screen.id}">Pending</span>
+        </div>
+      `;
+      document.getElementById('grid').appendChild(card);
+    }
+
+    function setStatus(id, status, text) {
+      const el = document.getElementById(`status-${id}`);
+      if (el) { el.className = `status ${status}`; el.textContent = text; }
+    }
+
+    async function captureScreen(screen, autoDownload) {
+      return new Promise((resolve) => {
+        setStatus(screen.id, 'loading', 'Loading...');
+        log(`Loading ${screen.name}...`);
+
+        const iframe = document.createElement('iframe');
+        iframe.style.width = W + 'px';
+        iframe.style.height = H + 'px';
+        iframe.style.border = 'none';
+        iframe.style.overflow = 'hidden';
+        document.getElementById('frames').appendChild(iframe);
+
+        // Build URL — inject auth token via localStorage for auth'd pages
+        const url = BASE + screen.path;
+
+        iframe.onload = async function() {
+          try {
+            // If needs auth, inject token into iframe localStorage
+            if (screen.needsAuth && token) {
+              try {
+                iframe.contentWindow.localStorage.setItem('token', token);
+                // Also set user data so auth context picks it up
+                const userRes = await fetch('http://localhost:8000/api/users/me', {
+                  headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (userRes.ok) {
+                  const userData = await userRes.json();
+                  iframe.contentWindow.localStorage.setItem('user', JSON.stringify(userData));
+                }
+                // Reload to pick up auth
+                iframe.src = url;
+                iframe.onload = async function() {
+                  await waitAndCapture(iframe, screen, autoDownload, resolve);
+                };
+                return;
+              } catch (e) {
+                log(`⚠ Could not inject auth for ${screen.id}: ${e.message}`);
+              }
+            }
+            await waitAndCapture(iframe, screen, autoDownload, resolve);
+          } catch (e) {
+            log(`✗ Error capturing ${screen.name}: ${e.message}`);
+            setStatus(screen.id, 'error', 'Error');
+            resolve();
+          }
+        };
+
+        iframe.src = url;
+      });
+    }
+
+    async function waitAndCapture(iframe, screen, autoDownload, resolve) {
+      // Wait for content to render
+      const waitTime = screen.id === 'discover' ? 5000 : screen.id === 'onboarding' ? 3000 : 4000;
+      log(`Waiting ${waitTime/1000}s for ${screen.name} to render...`);
+      await new Promise(r => setTimeout(r, waitTime));
+
+      setStatus(screen.id, 'loading', 'Capturing...');
+
+      try {
+        const canvas = await html2canvas(iframe.contentDocument.body, {
+          width: W,
+          height: H,
+          scale: SCALE,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: null,
+          logging: false,
+          windowWidth: W,
+          windowHeight: H,
+        });
+
+        const dataUrl = canvas.toDataURL('image/png');
+
+        // Update card with preview
+        const card = document.getElementById(`card-${screen.id}`);
+        const imgContainer = card.querySelector('div');
+        imgContainer.innerHTML = `<img src="${dataUrl}" alt="${screen.name}" />`;
+
+        // Add download button
+        const info = card.querySelector('.info');
+        const dlBtn = document.createElement('button');
+        dlBtn.className = 'dl-btn';
+        dlBtn.textContent = '⬇ PNG';
+        dlBtn.onclick = () => downloadPng(dataUrl, screen.id);
+        info.appendChild(dlBtn);
+
+        if (autoDownload) {
+          downloadPng(dataUrl, screen.id);
+        }
+
+        setStatus(screen.id, 'done', 'Done ✓');
+        log(`✓ ${screen.name} captured`);
+      } catch (e) {
+        log(`✗ html2canvas failed for ${screen.name}: ${e.message}`);
+        setStatus(screen.id, 'error', 'Failed');
+      }
+
+      // Clean up iframe
+      iframe.remove();
+      resolve();
+    }
+
+    function downloadPng(dataUrl, id) {
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = `echelon_${id}_2x.png`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    async function captureAll(autoDownload = true) {
+      // Clear previous
+      document.getElementById('grid').innerHTML = '';
+      document.getElementById('frames').innerHTML = '';
+      document.getElementById('log').innerHTML = '';
+
+      // Create cards
+      SCREENS.forEach(s => createCard(s));
+
+      // Get auth token
+      await getToken();
+
+      // Capture each sequentially
+      for (let i = 0; i < SCREENS.length; i++) {
+        setProgress(i, SCREENS.length, `Capturing ${SCREENS[i].name}...`);
+        await captureScreen(SCREENS[i], autoDownload);
+      }
+
+      setProgress(SCREENS.length, SCREENS.length, `All ${SCREENS.length} screenshots captured!`);
+      log(`\n🎉 Done! All ${SCREENS.length} screenshots captured.`);
+    }
+  </script>
+</body>
+</html>

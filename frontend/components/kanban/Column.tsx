@@ -9,30 +9,40 @@ interface ColumnProps {
   title: string;
   items: Application[];
   color: string;
+  fullWidth?: boolean;
 }
 
-export function KanbanColumn({ id, title, items, color }: ColumnProps) {
+const STATUS_CONFIG: Record<string, { dot: string; bg: string; border: string }> = {
+  "Saved": { dot: "bg-slate-400", bg: "bg-slate-50", border: "border-slate-200/50" },
+  "Applied": { dot: "bg-blue-500", bg: "bg-blue-50/30", border: "border-blue-200/40" },
+  "In Review": { dot: "bg-amber-500", bg: "bg-amber-50/30", border: "border-amber-200/40" },
+};
+
+export function KanbanColumn({ id, title, items, color, fullWidth }: ColumnProps) {
+  const config = STATUS_CONFIG[id] || STATUS_CONFIG["Saved"];
+
   return (
     <div className={cn(
-      "w-[280px] flex-shrink-0 flex flex-col max-h-[60vh] rounded-3xl overflow-hidden bg-slate-50/50 border border-slate-200/40",
-      items.length > 0 ? "shadow-sm" : ""
+      "flex flex-col rounded-xl overflow-hidden border bg-white/60 backdrop-blur-sm",
+      fullWidth ? "w-full h-full" : "w-[280px] flex-shrink-0 max-h-[60vh]",
+      config.border
     )}>
-      {/* Column Header */}
-      <div className="p-4 px-5 bg-white/80 backdrop-blur-md border-b border-slate-200/60 flex justify-between items-center sticky top-0 z-10">
-        <div className="flex items-center gap-3">
-          <div className={cn("w-2 h-2 rounded-full", 
-            id === "Saved" ? "bg-slate-400" :
-            id === "Applied" ? "bg-blue-500" :
-            id === "In Review" ? "bg-purple-500" :
-            id === "Won" ? "bg-emerald-500" :
-            id === "Lost" ? "bg-rose-500" : "bg-amber-500"
+      {/* Column Header - hidden in fullWidth/tab mode */}
+      {!fullWidth && (
+      <div className="px-4 py-3 flex justify-between items-center border-b border-slate-100">
+        <div className="flex items-center gap-2.5">
+          <div className={cn("w-2 h-2 rounded-full ring-2 ring-offset-1",
+            config.dot,
+            id === "Saved" ? "ring-slate-200" : id === "Applied" ? "ring-blue-200" : "ring-amber-200"
           )}></div>
-          <h3 className="font-bold text-slate-800 text-sm tracking-tight">{title}</h3>
+          <h3 className="font-semibold text-slate-700 text-sm">{title}</h3>
         </div>
-        <span className="bg-slate-200/60 tabular-nums px-2.5 py-0.5 rounded-full text-[10px] font-black text-slate-500">
+        <span className="bg-slate-100 tabular-nums px-2 py-0.5 rounded-md text-[10px] font-bold text-slate-500">
           {items.length}
         </span>
       </div>
+      )}
+      {fullWidth && <div className="h-1"></div>}
 
       {/* Drop Zone */}
       <Droppable droppableId={id}>
@@ -41,10 +51,18 @@ export function KanbanColumn({ id, title, items, color }: ColumnProps) {
             {...provided.droppableProps}
             ref={provided.innerRef}
             className={cn(
-              "p-4 flex-1 overflow-y-auto space-y-4 min-h-[200px] transition-all duration-300 hide-scrollbar",
-              snapshot.isDraggingOver ? "bg-indigo-50/30" : ""
+              "p-3 flex-1 overflow-y-auto space-y-3 min-h-[180px] transition-colors duration-200 hide-scrollbar",
+              snapshot.isDraggingOver ? "bg-indigo-50/40" : config.bg
             )}
           >
+            {items.length === 0 && !snapshot.isDraggingOver && (
+              <div className="flex flex-col items-center justify-center h-32 gap-2">
+                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
+                  <span className="text-slate-300 text-lg">0</span>
+                </div>
+                <span className="text-slate-300 text-xs font-medium">No scholarships here yet</span>
+              </div>
+            )}
             {items.map((item, index) => (
               <KanbanCard key={item.id} item={item} index={index} />
             ))}

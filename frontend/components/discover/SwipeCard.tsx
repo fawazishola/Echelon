@@ -6,6 +6,31 @@ import { useState, useRef } from "react";
 import { formatCurrency, cn } from "@/lib/utils";
 import { Card } from "@/components/ui/Card";
 
+// Tailwind class → hex color map (Tailwind purges dynamic classes, so we use inline styles)
+const COLOR_MAP: Record<string, string> = {
+  "from-indigo-500": "#6366f1", "to-violet-600": "#7c3aed", "from-indigo-600": "#4f46e5",
+  "to-violet-500": "#8b5cf6", "to-blue-500": "#3b82f6", "to-blue-700": "#1d4ed8",
+  "to-blue-800": "#1e40af", "to-indigo-500": "#6366f1",
+  "from-blue-600": "#2563eb", "to-cyan-500": "#06b6d4", "to-cyan-600": "#0891b2",
+  "from-blue-700": "#1d4ed8",
+  "from-slate-800": "#1e293b", "to-slate-600": "#475569",
+  "from-slate-700": "#334155", "to-zinc-600": "#52525b",
+  "from-slate-900": "#0f172a", "to-black": "#000000",
+  "from-rose-500": "#f43f5e", "to-pink-600": "#db2777", "to-pink-500": "#ec4899",
+  "from-amber-500": "#f59e0b", "to-orange-500": "#f97316", "to-orange-600": "#ea580c",
+  "from-orange-500": "#f97316", "to-red-600": "#dc2626",
+  "from-neutral-700": "#404040", "to-neutral-900": "#171717",
+  "from-purple-600": "#9333ea", "to-fuchsia-500": "#d946ef", "to-purple-700": "#7e22ce",
+  "from-purple-800": "#6b21a8", "to-purple-600": "#9333ea",
+  "from-cyan-700": "#0e7490",
+  "from-teal-500": "#14b8a6", "from-teal-600": "#0d9488", "to-emerald-400": "#34d399", "to-emerald-500": "#10b981",
+  "from-violet-600": "#7c3aed",
+  "from-emerald-600": "#059669", "from-emerald-700": "#047857", "to-teal-500": "#14b8a6", "to-green-600": "#16a34a", "to-green-700": "#15803d",
+  "from-red-500": "#ef4444", "from-red-600": "#dc2626", "to-yellow-500": "#eab308", "to-red-400": "#f87171",
+  "from-zinc-700": "#3f3f46",
+  "from-fuchsia-600": "#c026d3",
+};
+
 
 // Mock Data Interface
 export interface Scholarship {
@@ -90,7 +115,7 @@ export function SwipeCard({ scholarship, onSwipe, index }: SwipeCardProps) {
         <div
           ref={cardRef}
           className={cn(
-            "relative w-[95%] max-w-[360px] h-[min(440px,calc(100vh-300px))] bg-white rounded-3xl shadow-xl overflow-hidden cursor-grab active:cursor-grabbing",
+            "relative w-[95%] max-w-[360px] h-[min(440px,calc(100vh-300px))] bg-white rounded-2xl shadow-lg overflow-hidden cursor-grab active:cursor-grabbing",
             index > 0 && "pointer-events-none shadow-none bg-slate-50"
           )}
         >
@@ -108,9 +133,12 @@ export function SwipeCard({ scholarship, onSwipe, index }: SwipeCardProps) {
 
           {/* Card Header with Gradient */}
           <div className={cn("h-[40%] p-6 flex flex-col justify-between relative transition-opacity duration-300",
-            scholarship.color_start ? `bg-gradient-to-br ${scholarship.color_start} ${scholarship.color_end}` : "bg-gradient-to-br from-indigo-500 to-violet-600",
             index > 0 && "opacity-0"
-          )}>
+          )}
+          style={{
+            background: `linear-gradient(to bottom right, ${COLOR_MAP[scholarship.color_start || "from-indigo-500"] || "#6366f1"}, ${COLOR_MAP[scholarship.color_end || "to-violet-600"] || "#7c3aed"})`
+          }}
+          >
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-lg p-1.5 pr-3">
                 <span className="w-8 h-8 bg-white rounded-md flex items-center justify-center text-xs font-bold text-slate-900">
@@ -173,7 +201,7 @@ export function SwipeCard({ scholarship, onSwipe, index }: SwipeCardProps) {
                 onSwipe("left", scholarship.id);
                 controls.start({ x: -500, opacity: 0, transition: { duration: 0.2 } });
               }}
-              className="w-14 h-14 rounded-full bg-white border border-rose-100 text-rose-500 shadow-lg shadow-rose-100 flex items-center justify-center hover:scale-110 active:scale-95 transition-transform"
+              className="w-14 h-14 rounded-full bg-white border border-rose-200 text-rose-500 shadow-md flex items-center justify-center hover:scale-110 active:scale-95 transition-transform"
             >
               <X size={28} strokeWidth={3} />
             </button>
@@ -195,7 +223,7 @@ export function SwipeCard({ scholarship, onSwipe, index }: SwipeCardProps) {
                 onSwipe("right", scholarship.id);
                 controls.start({ x: 500, opacity: 0, transition: { duration: 0.2 } });
               }}
-              className="w-14 h-14 rounded-full bg-indigo-600 text-white shadow-lg shadow-indigo-200 flex items-center justify-center hover:scale-110 active:scale-95 transition-transform"
+              className="w-14 h-14 rounded-full bg-indigo-600 text-white shadow-md flex items-center justify-center hover:scale-110 active:scale-95 transition-transform"
             >
               <Heart size={26} fill="white" />
             </button>

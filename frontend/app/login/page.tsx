@@ -70,21 +70,21 @@ export default function LoginPage() {
 
   return (
     <div className="flex-1 bg-white md:bg-slate-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="w-full max-w-md bg-white md:p-8 md:rounded-3xl md:shadow-xl">
+<div className="w-full max-w-md bg-white md:p-8 md:rounded-2xl md:shadow-lg">
 
         {/* Header */}
-        <div className="text-center mb-8 relative">
-          <Mascot expression="happy" size={80} className="mx-auto mb-4" />
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">
+        <div className="text-center mb-6 relative">
+          <Mascot expression="happy" size={72} className="mx-auto mb-3" />
+          <h1 className="text-2xl font-bold text-slate-900 mb-1">
             {isLogin ? "Welcome Back" : "Create Account"}
           </h1>
-          <p className="text-slate-500">
+          <p className="text-slate-500 text-sm">
             {isLogin ? "Your scholarships are waiting!" : "Let's find scholarships made for you."}
           </p>
         </div>
 
         {/* Toggle */}
-        <div className="flex bg-slate-100 p-1 rounded-xl mb-8">
+        <div className="flex bg-slate-100 p-1 rounded-lg mb-6">
           <button
             onClick={() => setIsLogin(false)}
             className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${!isLogin ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
@@ -163,7 +163,7 @@ export default function LoginPage() {
           <div className="h-px bg-slate-200 flex-1"></div>
         </div>
 
-        <button className="mt-6 w-full h-14 border border-slate-200 rounded-xl flex items-center justify-center gap-3 hover:bg-slate-50 transition-colors font-medium text-slate-700">
+        <button className="mt-6 w-full h-12 border border-slate-200 rounded-lg flex items-center justify-center gap-3 hover:bg-slate-50 transition-colors font-medium text-slate-700">
           {/* Google Icon SVG */}
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path

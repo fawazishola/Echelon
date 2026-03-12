@@ -17,7 +17,7 @@ class ScholarshipResponse(BaseModel):
     title: str
     amount: int
     deadline_days: int
-    effort_hours: int
+    effort_hours: float
     win_probability: int
     tags: Optional[str] = None
     description: Optional[str] = None

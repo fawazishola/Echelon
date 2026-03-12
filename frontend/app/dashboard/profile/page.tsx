@@ -192,8 +192,8 @@ export default function ProfilePage() {
       </header>
 
       {/* ── Avatar Card ── */}
-      <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col items-center mb-4">
-        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-3xl font-black mb-4 shadow-lg shadow-indigo-200">
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col items-center mb-4">
+        <div className="w-24 h-24 rounded-full bg-indigo-600 flex items-center justify-center text-white text-3xl font-black mb-4 shadow-sm">
           {formData.full_name
             ? formData.full_name.substring(0, 1).toUpperCase()
             : "U"}
@@ -280,12 +280,9 @@ export default function ProfilePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 relative overflow-hidden mb-4 group hover:shadow-md transition-all"
+          className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 mb-4 group hover:shadow-md transition-all"
         >
-          {/* Decorative blob */}
-          <div className="absolute -right-10 -top-10 w-32 h-32 bg-emerald-50 rounded-full blur-2xl opacity-50 pointer-events-none" />
-
-          <div className="flex flex-col items-center text-center relative z-10">
+          <div className="flex flex-col items-center text-center">
             {/* Label */}
             <span className="text-[10px] uppercase font-extrabold tracking-widest text-slate-400 mb-1 flex items-center gap-1">
               {showTotalWon && (
@@ -295,7 +292,7 @@ export default function ProfilePage() {
             </span>
 
             {/* Big number */}
-            <div className="text-[40px] font-black text-emerald-500 leading-none tracking-tight mb-4 drop-shadow-sm">
+            <div className="text-[36px] font-black text-emerald-600 leading-none tracking-tight mb-4">
               ${heroValue.toLocaleString()}
             </div>
 
@@ -338,7 +335,7 @@ export default function ProfilePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.25 }}
-          className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex items-center gap-6 mb-6 cursor-pointer hover:border-indigo-200 transition-colors"
+          className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center gap-6 mb-6 cursor-pointer hover:border-indigo-200 transition-colors"
         >
           <ProgressRing percentage={stats.profile_completeness} />
 
@@ -373,7 +370,7 @@ export default function ProfilePage() {
       )}
 
       {/* ── Settings List ── */}
-      <div className="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 mb-6">
+      <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 mb-6">
         <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 hover:bg-slate-50 transition-colors cursor-pointer">
           <div className="font-semibold text-slate-700">
             Application Documents
@@ -396,7 +393,7 @@ export default function ProfilePage() {
       {/* ── Logout ── */}
       <button
         onClick={logout}
-        className="w-full h-14 bg-white border border-rose-100 text-rose-500 rounded-2xl flex items-center justify-center gap-2 font-bold hover:bg-rose-50 transition-colors shadow-sm"
+        className="w-full h-12 bg-white border border-rose-200 text-rose-500 rounded-xl flex items-center justify-center gap-2 font-semibold hover:bg-rose-50 transition-colors shadow-sm"
       >
         <LogOut size={18} /> Logout
       </button>

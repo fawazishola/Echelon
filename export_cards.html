@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Echelon Card Export</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #0f172a; color: #fff; padding: 40px; }
+  h1 { text-align: center; margin-bottom: 8px; font-size: 28px; }
+  .subtitle { text-align: center; color: #94a3b8; margin-bottom: 32px; }
+  .controls { text-align: center; margin-bottom: 40px; }
+  .controls button {
+    background: #4f46e5; color: #fff; border: none; padding: 14px 32px;
+    border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .controls button:hover { background: #4338ca; transform: scale(1.02); }
+  .controls button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .progress { color: #94a3b8; margin-top: 12px; font-size: 14px; text-align: center; }
+  .grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 32px; max-width: 1400px; margin: 0 auto;
+  }
+  .card-wrapper { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .card-label { font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* Card styling — matches the app exactly */
+  .card {
+    width: 340px; height: 480px; background: #fff; border-radius: 24px;
+    overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    display: flex; flex-direction: column;
+  }
+  .card-header {
+    height: 42%; padding: 24px; display: flex; flex-direction: column;
+    justify-content: space-between; position: relative; overflow: hidden;
+  }
+  .card-header::after {
+    content: ''; position: absolute; top: -30px; right: -30px;
+    width: 120px; height: 120px; background: rgba(255,255,255,0.1);
+    border-radius: 50%; filter: blur(20px);
+  }
+  .header-top { display: flex; justify-content: space-between; align-items: flex-start; position: relative; z-index: 1; }
+  .provider-badge {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.2); backdrop-filter: blur(8px);
+    border-radius: 8px; padding: 6px 12px 6px 6px;
+  }
+  .provider-icon {
+    width: 32px; height: 32px; background: #fff; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800; color: #0f172a;
+  }
+  .provider-name { font-size: 12px; font-weight: 500; color: #fff; }
+  .deadline-badge {
+    padding: 4px 12px; background: #fbbf24; color: #0f172a;
+    font-size: 11px; font-weight: 700; border-radius: 999px;
+  }
+  .amount-section { position: relative; z-index: 1; color: #fff; }
+  .amount { font-size: 36px; font-weight: 800; letter-spacing: -0.02em; }
+  .title { font-size: 17px; font-weight: 600; line-height: 1.3; opacity: 0.95;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+  .card-body { height: 58%; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; }
+  .compat-section { }
+  .compat-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .compat-label { font-size: 12px; font-weight: 500; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; }
+  .compat-value { font-size: 24px; font-weight: 800; }
+  .compat-bar { width: 100%; height: 10px; background: #f1f5f9; border-radius: 999px; overflow: hidden; }
+  .compat-fill { height: 100%; border-radius: 999px; transition: width 1s; }
+  .tags-row { display: flex; align-items: center; gap: 10px; color: #94a3b8; font-size: 13px; margin-top: 14px; }
+  .tag {
+    background: #f1f5f9; padding: 2px 10px; border-radius: 6px;
+    font-size: 11px; font-weight: 500; color: #475569;
+  }
+  .effort { display: flex; align-items: center; gap: 4px; }
+  .desc { font-size: 13px; color: #64748b; line-height: 1.5;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+</style>
+</head>
+<body>
+
+<h1>Echelon — Card Export</h1>
+<p class="subtitle">10 scholarship cards rendered at 2x resolution for crisp PNGs</p>
+<div class="controls">
+  <button id="downloadAll" onclick="downloadAll()">Download All 10 as PNG</button>
+  <div class="progress" id="progress"></div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+const COLOR_MAP = {
+  "from-indigo-500":"#6366f1","to-violet-600":"#7c3aed","from-indigo-600":"#4f46e5",
+  "to-violet-500":"#8b5cf6","to-blue-500":"#3b82f6","to-blue-700":"#1d4ed8",
+  "from-blue-500":"#3b82f6","from-blue-600":"#2563eb","to-cyan-500":"#06b6d4",
+  "from-slate-800":"#1e293b","to-slate-600":"#475569","from-slate-700":"#334155",
+  "to-slate-900":"#0f172a","to-zinc-600":"#52525b",
+  "from-rose-500":"#f43f5e","to-pink-600":"#db2777","to-pink-500":"#ec4899",
+  "from-amber-500":"#f59e0b","to-orange-500":"#f97316","to-orange-600":"#ea580c",
+  "to-amber-700":"#b45309","from-orange-400":"#fb923c","to-rose-500":"#f43f5e",
+  "from-orange-500":"#f97316","to-red-600":"#dc2626",
+  "from-neutral-700":"#404040","to-neutral-900":"#171717",
+  "from-purple-600":"#9333ea","to-fuchsia-500":"#d946ef","to-purple-700":"#7e22ce",
+  "to-indigo-900":"#312e81",
+  "from-cyan-700":"#0e7490","to-blue-800":"#1e40af",
+  "from-teal-500":"#14b8a6","from-teal-600":"#0d9488","to-emerald-400":"#34d399","to-emerald-500":"#10b981",
+  "from-violet-600":"#7c3aed",
+  "from-emerald-600":"#059669","to-teal-500":"#14b8a6","to-green-600":"#16a34a","to-green-700":"#15803d",
+  "from-red-500":"#ef4444","from-red-600":"#dc2626","to-yellow-500":"#eab308",
+  "from-zinc-700":"#3f3f46","from-fuchsia-600":"#c026d3",
+  "from-purple-800":"#6b21a8","to-purple-600":"#9333ea",
+  "from-emerald-700":"#047857",
+};
+
+const scholarships = [
+  {id:1,title:"Women Techmakers Scholarship",provider_name:"Google",amount:10000,deadline_days:12,tags:"STEM,Women,Undergrad",color_start:"from-blue-500",color_end:"to-blue-700",effort_hours:3,description:"For women studying computer science or a related field. Essay required about your impact on the community.",prob:72},
+  {id:2,title:"Thiel Fellowship",provider_name:"Thiel",amount:100000,deadline_days:45,tags:"Entrepreneurship,Dropout,Tech",color_start:"from-orange-400",color_end:"to-rose-500",effort_hours:15,description:"For young people who want to build new things instead of sitting in a classroom.",prob:34},
+  {id:3,title:"Live Más Scholarship",provider_name:"Taco Bell",amount:25000,deadline_days:5,tags:"Video,Creative,No-Essay",color_start:"from-purple-600",color_end:"to-indigo-900",effort_hours:1,description:"Create a 2-minute video about your passion. No grades or essays required.",prob:58},
+  {id:4,title:"Burger King Scholars",provider_name:"Burger King",amount:1000,deadline_days:28,tags:"High School,GPA 2.5+,Community",color_start:"from-amber-500",color_end:"to-amber-700",effort_hours:2,description:"For high school seniors with a strong academic record and community service experience.",prob:45},
+  {id:5,title:"The Gates Scholarship",provider_name:"Gates",amount:50000,deadline_days:120,tags:"Minority,Low-Income,Leadership",color_start:"from-slate-700",color_end:"to-slate-900",effort_hours:20,description:"A highly selective, last-dollar scholarship for outstanding minority students.",prob:18},
+  {id:6,title:"Tuition Scholarship for STEM",provider_name:"Microsoft",amount:15000,deadline_days:14,tags:"STEM,Undergrad,Merit",color_start:"from-blue-600",color_end:"to-cyan-500",effort_hours:4.5,description:"Microsoft offers tuition scholarships to encourage student interest in STEM fields.",prob:65},
+  {id:7,title:"Women in Technology Scholarship",provider_name:"Palantir",amount:7000,deadline_days:21,tags:"STEM,Women,Undergrad,Grad",color_start:"from-slate-800",color_end:"to-slate-600",effort_hours:3,description:"Palantir Women in Technology Scholarship awards grants to celebrate and support women beginning careers in technology.",prob:52},
+  {id:8,title:"Generation Google Scholarship",provider_name:"Google",amount:10000,deadline_days:30,tags:"STEM,Undergrad,Diversity,Merit",color_start:"from-rose-500",color_end:"to-blue-500",effort_hours:5,description:"Established to help aspiring students pursuing computer science degrees excel in technology.",prob:61},
+  {id:9,title:"Amazon Future Engineer",provider_name:"Amazon",amount:40000,deadline_days:45,tags:"STEM,High School Senior,Need-based",color_start:"from-amber-500",color_end:"to-orange-600",effort_hours:8,description:"Recipients receive $40,000 toward college tuition and a paid summer internship at Amazon.",prob:42},
+  {id:10,title:"Apple HBCU Scholars Program",provider_name:"Apple",amount:15000,deadline_days:60,tags:"STEM,HBCU,Undergrad,Merit",color_start:"from-neutral-700",color_end:"to-neutral-900",effort_hours:4,description:"Apple has partnered with the Thurgood Marshall College Fund to provide scholarships to HBCU students.",prob:38},
+];
+
+function fmt(n) { return '$' + n.toLocaleString('en-US'); }
+
+function probStyle(p) {
+  if (p >= 40) return { color: '#10b981', bg: '#10b981' };
+  if (p >= 15) return { color: '#fbbf24', bg: '#fbbf24' };
+  return { color: '#f43f5e', bg: '#f43f5e' };
+}
+
+function renderCards() {
+  const grid = document.getElementById('grid');
+  scholarships.forEach((s, i) => {
+    const c1 = COLOR_MAP[s.color_start] || '#6366f1';
+    const c2 = COLOR_MAP[s.color_end] || '#7c3aed';
+    const ps = probStyle(s.prob);
+    const tags = s.tags.split(',').slice(0, 3);
+
+    grid.innerHTML += `
+      <div class="card-wrapper">
+        <div class="card-label">Card ${i + 1} — ${s.provider_name}</div>
+        <div class="card" id="card-${i}">
+          <div class="card-header" style="background: linear-gradient(to bottom right, ${c1}, ${c2})">
+            <div class="header-top">
+              <div class="provider-badge">
+                <div class="provider-icon">${s.provider_name.substring(0,2).toUpperCase()}</div>
+                <span class="provider-name">${s.provider_name}</span>
+              </div>
+              <span class="deadline-badge">${s.deadline_days} days left</span>
+            </div>
+            <div class="amount-section">
+              <div class="amount">${fmt(s.amount)}</div>
+              <div class="title">${s.title}</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="compat-section">
+              <div class="compat-header">
+                <span class="compat-label">Compatibility</span>
+                <span class="compat-value" style="color:${ps.color}">${s.prob}%</span>
+              </div>
+              <div class="compat-bar">
+                <div class="compat-fill" style="width:${s.prob}%;background:${ps.bg}"></div>
+              </div>
+            </div>
+            <div class="tags-row">
+              <span class="effort">&#128339; ~${s.effort_hours}h</span>
+              ${tags.map(t => `<span class="tag">${t.trim()}</span>`).join('')}
+            </div>
+            <p class="desc">${s.description}</p>
+          </div>
+        </div>
+      </div>`;
+  });
+}
+
+async function downloadAll() {
+  const btn = document.getElementById('downloadAll');
+  const prog = document.getElementById('progress');
+  btn.disabled = true;
+
+  for (let i = 0; i < 10; i++) {
+    prog.textContent = `Exporting card ${i + 1} of 10...`;
+    const el = document.getElementById(`card-${i}`);
+    const canvas = await html2canvas(el, { scale: 2, backgroundColor: null, useCORS: true });
+    const link = document.createElement('a');
+    link.download = `echelon-card-${i + 1}-${scholarships[i].provider_name.toLowerCase().replace(/\s+/g, '-')}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    await new Promise(r => setTimeout(r, 300));
+  }
+
+  prog.textContent = 'Done! Check your Downloads folder.';
+  btn.disabled = false;
+}
+
+renderCards();
+</script>
+</body>
+</html>
